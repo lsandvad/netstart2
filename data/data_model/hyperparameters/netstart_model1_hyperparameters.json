@@ -1,0 +1,14 @@
+{
+    "model_no": 1,
+    "nt_upstream": 30,
+    "nt_downstream": 30,
+    "batch_size": 64,
+    "emb_size_tax": 600,
+    "hidden_neurons_aa": 128,
+    "hidden_neurons_nt": 512,
+    "hidden_neurons_merge": 1024,
+    "dropout_rate_1": 0.6,
+    "dropout_rate_2": 0.4,
+    "lr": 8e-06,
+    "depth_nt_window": 2
+}
