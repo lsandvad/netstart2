@@ -1,5 +1,3 @@
-# Ignore models loaded from huggingface
-cat > .gitignore << EOL
 # Model files
 data/data_model/models/
 data/data_model/models/**
