@@ -495,11 +495,15 @@ def extract_datasets(input_filename,
             assert sequence[position:position+3] == motif
             
             # Find first in-frame stop codon after ATG
-            first_stop_codon_pos = -1
+            first_stop_codon_pos = float('nan')
+            aa_seq_len = float('nan')
             for i in range(position + 3, len(sequence), 3):
                 codon = sequence[i:i+3]
                 if codon in stop_codons:
-                    first_stop_codon_pos = i
+                    first_stop_codon_pos = i + 1
+                    position = position + 1
+                    assert int(first_stop_codon_pos - position) % 3 == 0, "Start- and stop codon positions not extracted properly."
+                    aa_seq_len = (first_stop_codon_pos - position) // 3
                     break
             
             nucleotides_upstream = len(sequence[:position])
@@ -514,13 +518,15 @@ def extract_datasets(input_filename,
                 extract_downstream_aa
             )
 
+
             rows.append({
                 'aa_sequences': sequence_aa,
                 'tax_ranks': np.array(tax_mapping),
                 'origin': origin,
                 'entry_line': header,
-                'atg_position': position + 1,                  # ATG Position relative to full sequence (1-indexed)
-                'stop_codon_position': first_stop_codon_pos + 1  # Stop Codon Position relative to full sequence (1-indexed)
+                'atg_position': position,                     # ATG Position relative to full sequence (1-indexed)
+                'stop_codon_position': first_stop_codon_pos,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
+                'peptide_len': aa_seq_len
             })
             
     df_input = pd.DataFrame(rows)
@@ -674,13 +680,14 @@ class MultiInputDataset(torch.utils.data.Dataset): ##Write comments.
     """
     Create part of dataset to feed NetStart 2.0 that varies across trained models (PyTorch applicable format).
     """
-    def __init__(self, aa_encodings, tax_ranks, entry_line, atg_position, origin, stop_codon_position):
+    def __init__(self, aa_encodings, tax_ranks, entry_line, atg_position, origin, stop_codon_position, peptide_len):
         self.aa_encodings = aa_encodings
         self.tax_ranks = tax_ranks
         self.entry_line = entry_line
         self.atg_position = atg_position
         self.origin = origin
         self.stop_codon_position = stop_codon_position
+        self.peptide_len = peptide_len
 
     def __getitem__(self, idx):
         # Convert strings to integers in the 'tax_ranks' list
@@ -692,7 +699,8 @@ class MultiInputDataset(torch.utils.data.Dataset): ##Write comments.
             'entry_line': self.entry_line[idx],
             'atg_position': self.atg_position[idx],
             'origin': self.origin[idx],
-            'stop_codon_position': self.stop_codon_position[idx]
+            'stop_codon_position': self.stop_codon_position[idx],
+            'peptide_len': self.peptide_len[idx]
         }
         return item
 
@@ -889,7 +897,7 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes)
     return model, dataloader_nt
 
 
-def get_predictions(origin, input_filename, output_filename, output_results, threshold):
+def get_predictions(origin, input_filename, output_filename, output_results, threshold, gzip_outfile):
     """
     Run entire pipeline to get predictions.
 
@@ -898,6 +906,8 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
         input_filename (str): path to and filename of input fasta file (can be either fasta or fasta.gz).
         output_filename (str): the output filename prefix. 
         out_format (str) ["csv", "json", "both"]: the format the predictions should be outputted in (default: "both"). 
+        threshold (float): the threshold to use for binary classification (default: 0.5).
+        gzip_outfile (bool): whether to gzip the output files (default: False).
     
     """
     print("Preparing data for model input.")
@@ -921,7 +931,8 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                                     df_input['entry_line'],
                                     df_input['atg_position'],
                                     df_input['origin'],
-                                    df_input['stop_codon_position'])
+                                    df_input['stop_codon_position'],
+                                    df_input['peptide_len'])
     
     test_loader_invariant = DataLoader(dataset_invariant, batch_size=128, shuffle=False)
 
@@ -954,6 +965,7 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
     information_dict["origin"] = []
     information_dict["atg_position"] = []
     information_dict["stop_codon_position"] = []
+    information_dict['peptide_len'] = []
     information_dict["entry_line"] = []
     information_dict["preds"] = []
 
@@ -985,12 +997,14 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
             information_dict["origin"].extend(batch_invariant["origin"])
             information_dict["atg_position"].extend(batch_invariant["atg_position"])
             information_dict["stop_codon_position"].extend(batch_invariant["stop_codon_position"])
+            information_dict['peptide_len'].extend(batch_invariant['peptide_len'])
             information_dict["entry_line"].extend(batch_invariant["entry_line"])
             
     #Convert float32 values to native Python floats in the dictionary lists
     information_dict["preds"] = [round(float(val), 6) for val in information_dict["preds"]]
     information_dict["atg_position"] = [int(val) for val in information_dict["atg_position"]]
-    information_dict["stop_codon_position"] = [int(val) for val in information_dict["stop_codon_position"]]
+    information_dict["stop_codon_position"] = [int(val.item()) if not torch.isnan(val) else float('nan') for val in information_dict["stop_codon_position"]]
+    information_dict['peptide_len'] = [int(val.item()) if not torch.isnan(val) else float('nan') for val in information_dict['peptide_len']]
 
     information_df = pd.DataFrame(information_dict)
 
@@ -1002,13 +1016,16 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
         information_df = information_df[information_df["preds"] > threshold]
 
     print(information_df)
-    information_df.to_csv(output_filename+".csv", index=False)#, compression='gzip')
+    if gzip_outfile:
+        information_df.to_csv(output_filename+".csv.gz", index=False, compression='gzip')
+    else:
+        information_df.to_csv(output_filename+".csv", index=False)
     
 
 
 def main():
     # Create the parser
-    parser = argparse.ArgumentParser(description='Predict eukaryotic Translation Initiation Sites with NetStart 2.0')
+    parser = argparse.ArgumentParser(description='Predict Eukaryotic Translation Initiation Sites with NetStart 2.0')
     
     # Add the arguments
     parser.add_argument('-o', '--origin', 
@@ -1023,7 +1040,7 @@ def main():
     
     parser.add_argument('-out', '--output_filename',
                        type=str,
-                       default="test_out",
+                       default="netstart2_preds_out",
                        #required=True,
                        help='Output file name without file extension.')
     
@@ -1036,6 +1053,11 @@ def main():
                         type=float,
                         default=0.625,
                         help='Set the threshold for filtering predictions. Only works with "--output_results threshold" (default: 0.625).')
+
+    parser.add_argument('--gzip_outfile', 
+                        action='store_true',   
+                        default=False,
+                        help='Specify if output file should be gzipped (default: False).')
 
     # Parse the arguments
     args = parser.parse_args()
@@ -1057,7 +1079,8 @@ def main():
                     input_filename = args.input_filename, 
                     output_filename = args.output_filename, 
                     output_results = args.output_results, 
-                    threshold = args.threshold)
+                    threshold = args.threshold,
+                    gzip_outfile = args.gzip_outfile)
 
 
 if __name__ == "__main__":
