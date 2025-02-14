@@ -141,9 +141,11 @@ def is_fasta_file(filename):
     if not os.path.exists(filename):
         return False, f"File {filename} does not exist"
     
+    open_func = gzip.open if filename.endswith(".gz") else open
+    
     # Check file content
     try:
-        with open(filename, 'r') as f:
+        with open_func(filename, 'rt') as f:
             # Read first line
             first_line = f.readline().strip()
             if not first_line.startswith('>'):
@@ -499,13 +501,13 @@ def extract_datasets(input_filename,
             assert sequence[position:position+3] == motif
             
             # Find first in-frame stop codon after ATG
-            first_stop_codon_pos = float('nan')
+            position_1_indexed = position + 1
+            first_stop_codon_pos_1_indexed = float('nan')
             aa_seq_len = float('nan')
             for i in range(position + 3, len(sequence), 3):
                 codon = sequence[i:i+3]
                 if codon in stop_codons:
                     first_stop_codon_pos_1_indexed = i + 1
-                    position_1_indexed = position + 1
 
                     nucleotide_seq_len = int(first_stop_codon_pos_1_indexed - position_1_indexed)
                     assert nucleotide_seq_len % 3 == 0, "Start- and stop codon positions not extracted properly."
