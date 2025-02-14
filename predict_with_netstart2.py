@@ -96,7 +96,8 @@ conversion_dict = {
     'streptophyta': 'Streptophyta', 
     'ascomycota': 'Ascomycota', 
     'basidiomycota': 'Basidiomycota', 
-    'mucoromycota': 'Mucoromycota'
+    'mucoromycota': 'Mucoromycota',
+    'unknown': 'unknown'
 }
 
 
@@ -480,6 +481,9 @@ def extract_datasets(input_filename,
     #phylum-level representation          
     if origin in phylum_to_species_dict.keys(): 
         tax_mapping = ['0']*5 + tax_mappings[phylum_to_species_dict[origin]][-2:]
+    #unknown origin
+    elif origin == "unknown":
+        tax_mapping = ['0']*7
     #species-level representation
     else: 
         tax_mapping = tax_mappings[origin]
@@ -500,10 +504,13 @@ def extract_datasets(input_filename,
             for i in range(position + 3, len(sequence), 3):
                 codon = sequence[i:i+3]
                 if codon in stop_codons:
-                    first_stop_codon_pos = i + 1
-                    position = position + 1
-                    assert int(first_stop_codon_pos - position) % 3 == 0, "Start- and stop codon positions not extracted properly."
-                    aa_seq_len = (first_stop_codon_pos - position) // 3
+                    first_stop_codon_pos_1_indexed = i + 1
+                    position_1_indexed = position + 1
+
+                    nucleotide_seq_len = int(first_stop_codon_pos_1_indexed - position_1_indexed)
+                    assert nucleotide_seq_len % 3 == 0, "Start- and stop codon positions not extracted properly."
+                    aa_seq_len = nucleotide_seq_len // 3
+
                     break
             
             nucleotides_upstream = len(sequence[:position])
@@ -524,8 +531,8 @@ def extract_datasets(input_filename,
                 'tax_ranks': np.array(tax_mapping),
                 'origin': origin,
                 'entry_line': header,
-                'atg_position': position,                     # ATG Position relative to full sequence (1-indexed)
-                'stop_codon_position': first_stop_codon_pos,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
+                'atg_position': position_1_indexed,                     # ATG Position relative to full sequence (1-indexed)
+                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
                 'peptide_len': aa_seq_len
             })
             
