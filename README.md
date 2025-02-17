@@ -20,28 +20,21 @@ NetStart 2.0 can be run locally via the command line by cloning this repository 
 ```
 python3 ./predict_with_netstart2.py [optional arguments] -o ORIGIN -in INPUT_FILENAME 
 ```
-The origin of the sequence and the input file are required. Besides these, NetStart 2.0 can take a range of optional arguments: 
+The origin of the sequence and the input file (fasta format) are required. Besides these, NetStart 2.0 can take a range of optional arguments: 
 
 | Input Argument                  | Description                                                                                                                                          |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `-out`, `--output_filename`     | Output file name without file extension.                                                                                                             |
-| `--output_results`              |       Output format of predictions. The predictions can be provided in three versions: `all` (default) returns the Predicted probabilities for all ATGs in the input sequence(s). `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence. `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold. |            
-| `-`, `--`                    |             |
-| `-`, `--`                    |             |
-| `-`, `--`                    |             |
+| `--output_results`              | Output format of predictions. The predictions can be provided in three versions: `all` returns the Predicted probabilities for all ATGs in the input sequence(s). `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence. `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold. Default: `all`.|            
+| `--threshold`                | Set the threshold for filtering predictions. This argument only works with `--output_results threshold`. Default: `0.625`.            |
+| `--gzip_outfile`             | Specify if output file should be gzipped. Default: `False`.            |
+| `--batch_size`               | The batch size for running predictions. Default: `64`.            |
 | `-`, `--`                    |             |
 
 
-    
-    optional.add_argument('--threshold',
-                        type=float,
-                        default=0.625,
-                        help='Set the threshold for filtering predictions. Only works with "--output_results threshold" (default: 0.625).')
+ 
+ The predictions are returned as a .csv file. 
 
-    optional.add_argument('--gzip_outfile', 
-                        action='store_true',   
-                        default=False,
-                        help='Specify if output file should be gzipped (default: False).')
     
     optional.add_argument('--batch_size',
                         type=int,
