@@ -8,7 +8,7 @@ NetStart 2.0 integrates the ESM-2 protein language model for assessing transitio
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
 ## Usage Instructions
-NetStart 2.0 can be run locally by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: \
+NetStart 2.0 can be run locally by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: 
 ```
 python3 ./predict_with_netstart2.py -o ORIGIN -in INPUT_FILENAME 
 ```
@@ -28,77 +28,113 @@ NetStart 2.0 has been developed with python and the following package versions: 
 
 | Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Chordata                        | `chordata`              |
 | Alligator mississippiensis      | `a_mississippiensis`    |
 | Anolis carolinensis             | `a_carolinensis`        |
-| Anopheles gambiae               | `a_gambiae`             |
-| Apis mellifera                  | `a_mellifera`           |
-| Arabidopsis thaliana            | `a_thaliana`            |
-| Aspergillus nidulans            | `a_nidulans`            |
 | Bos taurus                      | `b_taurus`              |
-| Brachypodium distachyon         | `b_distachyon`          |
-| Caenorhabditis elegans          | `c_elegans`             |
 | Canis lupus                     | `c_lupus`               |
 | Columba livia                   | `c_livia`               |
-| Coprinopsis cinerea             | `c_cinerea`             |
-| Cryptococcus neoformans         | `c_neoformans`          |
 | Danio rerio                     | `d_rerio`               |
-| Daphnia carinata                | `d_carinata`            |
-| Dictyostelium discoideum        | `d_discoideum`          |
-| Drosophila melanogaster         | `d_melanogaster`        |
-| Eimeria maxima                  | `e_maxima`              |
-| Entamoeba histolytica           | `e_histolytica`         |
 | Equus caballus                  | `e_caballus`            |
 | Gallus gallus                   | `g_gallus`              |
-| Giardia intestinalis            | `g_intestinalis`        |
-| Glycine max                     | `g_max`                 |
 | Gorilla gorilla                 | `g_gorilla`             |
 | Homo sapiens                    | `h_sapiens`             |
-| Hordeum vulgare                 | `h_vulgare`             |
-| Leishmania donovani             | `l_donovani`            |
-| Lotus japonicus                 | `l_japonicus`           |
-| Manduca sexta                   | `m_sexta`               |
-| Medicago truncatula             | `m_truncatula`          |
 | Mus musculus                    | `m_musculus`            |
-| Neurospora crassa               | `n_crassa`              |
-| Nicotiana tabacum               | `n_tabacum`             |
-| Oreochromis niloticus           | `o_niloticus`           |
 | Oryctolagus cuniculus           | `o_cuniculus`           |
-| Oryza sativa                    | `o_sativa`              |
+| Oreochromis niloticus           | `o_niloticus`           |
 | Oryzias latipes                 | `o_latipes`             |
 | Ovis aries                      | `o_aries`               |
 | Pan troglodytes                 | `p_troglodytes`         |
-| Phoenix dactylifera             | `p_dactylifera`         |
-| Plasmodium falciparum           | `p_falciparum`          |
 | Rattus norvegicus               | `r_norvegicus`          |
-| Rhizophagus irregularis         | `r_irregularis`         |
-| Saccharomyces cerevisiae        | `s_cerevisiae`          |
-| Schizophyllum commune           | `s_commune`             |
-| Schizosaccharomyces pombe       | `s_pombe`               |
+| Sus scrofa                      | `s_scrofa`              |
+| Taeniopygia guttata             | `t_guttata`             |
+| Xenopus laevis                  | `x_laevis`              |
+|---------------------------------|-------------------------|
+| Arthropoda                      | `arthropoda`            |
+| Apis mellifera                  | `a_mellifera`           |
+| Anopheles gambiae               | `a_gambiae`             |
+| Daphnia carinata                | `d_carinata`            |
+| Drosophila melanogaster         | `d_melanogaster`        |
+| Manduca sexta                   | `m_sexta`               |
+| Tribolium castaneum             | `t_castaneum`           |
+|---------------------------------|-------------------------|
+| Nematoda                        | `nematoda`              |
+| Caenorhabditis elegans          | `c_elegans`             |
+
+#### Placozoa
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Trichoplax adhaerens            | `t_adhaerens`           |
+
+#### Echinodermata
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Strongylocentrotus purpuratus   | `s_purpuratus`          |
+
+#### Apicomplexa
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Plasmodium falciparum           | `p_falciparum`          |
+| Toxoplasma gondii               | `t_gondii`              |
+| Eimeria maxima                  | `e_maxima`              |
+
+#### Euglenozoa
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Trypanosoma brucei              | `t_brucei`              |
+| Leishmania donovani             | `l_donovani`            |
+
+#### Evosea
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Dictyostelium discoideum        | `d_discoideum`          |
+| Entamoeba histolytica           | `e_histolytica`         |
+
+#### Fornicata
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Giardia intestinalis            | `g_intestinalis`        |
+
+#### Streptophyta
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Arabidopsis thaliana            | `a_thaliana`            |
+| Brachypodium distachyon         | `b_distachyon`          |
+| Glycine max                     | `g_max`                 |
+| Hordeum vulgare                 | `h_vulgare`             |
+| Lotus japonicus                 | `l_japonicus`           |
+| Medicago truncatula             | `m_truncatula`          |
+| Nicotiana tabacum               | `n_tabacum`             |
+| Oryza sativa                    | `o_sativa`              |
+| Phoenix dactylifera             | `p_dactylifera`         |
 | Selaginella moellendorffii      | `s_moellendorffii`      |
 | Setaria viridis                 | `s_viridis`             |
 | Solanum lycopersicum            | `s_lycopersicum`        |
-| Strongylocentrotus purpuratus   | `s_purpuratus`          |
-| Sus scrofa                      | `s_scrofa`              |
-| Taeniopygia guttata             | `t_guttata`             |
-| Toxoplasma gondii               | `t_gondii`              |
-| Tribolium castaneum             | `t_castaneum`           |
-| Trichoplax adhaerens            | `t_adhaerens`           |
 | Triticum aestivum               | `t_aestivum`            |
-| Trypanosoma brucei              | `t_brucei`              |
-| Ustilago maydis                 | `u_maydis`              |
-| Xenopus laevis                  | `x_laevis`              |
 | Zea mays                        | `z_mays`                |
-| Chordata                        | `chordata`              |
-| Nematoda                        | `nematoda`              |
-| Arthropoda                      | `arthropoda`            |
-| Placozoa                        | `placozoa`              |
-| Echinodermata                   | `echinodermata`         |
-| Apicomplexa                     | `apicomplexa`           |
-| Euglenozoa                      | `euglenozoa`            |
-| Evosea                          | `evosea`                |
-| Fornicata                       | `fornicata`             |
-| Streptophyta                    | `streptophyta`          |
-| Ascomycota                      | `ascomycota`            |
-| Basidiomycota                   | `basidiomycota`         |
-| Mucoromycota                    | `mucoromycota`          |
-| unknown                         | `unknown`               |
+
+#### Ascomycota
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Aspergillus nidulans            | `a_nidulans`            |
+| Neurospora crassa               | `n_crassa`              |
+| Saccharomyces cerevisiae        | `s_cerevisiae`          |
+| Schizosaccharomyces pombe       | `s_pombe`               |
+
+#### Basidiomycota
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Coprinopsis cinerea             | `c_cinerea`             |
+| Cryptococcus neoformans         | `c_neoformans`          |
+| Schizophyllum commune           | `s_commune`             |
+| Ustilago maydis                 | `u_maydis`              |
+
+#### Mucoromycota
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Rhizophagus irregularis         | `r_irregularis`         |
+
+#### Unknown
+| Sequence Origin                 | Input Argument (`-o`)   |
+|---------------------------------|-------------------------|
+| Unknown                         | `unknown`               |
