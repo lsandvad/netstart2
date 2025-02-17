@@ -25,12 +25,12 @@ The origin of the sequence and the input file (fasta format) are required. Besid
 | Input Argument                  | Description                                                                                                                                          |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `-out`, `--output_filename`     | Output file name without file extension.                                                                                                             |
-| `--output_results`              | Output format of predictions. The predictions can be provided in three versions: `all` returns the Predicted probabilities for all ATGs in the input sequence(s). `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence. `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold. Default: `all`.|            
-| `--threshold`                | Set the threshold for filtering predictions. This argument only works with `--output_results threshold`. Default: `0.625`.            |
-| `--gzip_outfile`             | Specify if output file should be gzipped. Default: `False`.            |
-| `--batch_size`               | The batch size for running predictions. Default: `64`.            |
-| `-o`, `--origin`             | The sequence origin (See table XXX for options).            |
-| `-in`, `--input_filename`    | The input file in FASTA format. The input file can also be in gzipped format with .gz-extension            |
+| `--output_results`              | Output format of predictions. The predictions can be provided in three versions: `all` returns the Predicted probabilities for all ATGs in the input sequence(s). `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence. `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold. Default: `all`.|
+| `--threshold`                   | Set the threshold for filtering predictions. This argument only works with `--output_results threshold`. Default: `0.625`.            |
+| `--gzip_outfile`                | Specify if output file should be gzipped. Default: `False`.            |
+| `--batch_size`                  | The batch size for running predictions. Default: `64`.            |
+| `-o`, `--origin`                | The origin of the sequence(s) (See table [here](#input-sequence-origin-specifications) for options).            |
+| `-in`, `--input_filename`       | The input file in FASTA format. The input file can also be in gzipped format with .gz-extension            |
 
 
  
