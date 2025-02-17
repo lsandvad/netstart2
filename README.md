@@ -4,6 +4,7 @@ NetStart 2.0 is a deep learning-based model that predicts canonical translation 
 ## About
 NetStart 2.0 integrates the ESM-2 protein language model for assessing transitions from non-coding to coding regions with local sequence context and taxonomical information. 
 
+
 ## NetStart 2.0 Online Server
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
@@ -16,7 +17,7 @@ NetStart 2.0 has been developed in Python, with the following package versions: 
 * tqdm==4.62.3
 * transformers==4.36.0 
 
-## Usage Instructions
+### Usage Instructions
 NetStart 2.0 can be run via the command line by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: 
 ```
 python3 ./predict_with_netstart2.py [optional arguments] -o ORIGIN -in INPUT_FILENAME 
@@ -34,7 +35,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `-in`, `--input_filename`       | Input file in FASTA format. The file can also be gzipped with a .gz extension.                                                                        |
 
 
- The predictions are returned as a .csv file. 
+The predictions are returned as a .csv file. 
 
 
 
