@@ -28,7 +28,7 @@ NetStart 2.0 has been developed with python and the following package versions: 
 
 | Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
-| Chordata                        | `chordata`              |
+| **Chordata**                    | `chordata`              |
 | Alligator mississippiensis      | `a_mississippiensis`    |
 | Anolis carolinensis             | `a_carolinensis`        |
 | Bos taurus                      | `b_taurus`              |
@@ -60,44 +60,30 @@ NetStart 2.0 has been developed with python and the following package versions: 
 |---------------------------------|-------------------------|
 | Nematoda                        | `nematoda`              |
 | Caenorhabditis elegans          | `c_elegans`             |
-
-#### Placozoa
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Placozoa                        | `placozoa`              |
 | Trichoplax adhaerens            | `t_adhaerens`           |
-
-#### Echinodermata
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Echinodermata                   | `echinodermata`         |
 | Strongylocentrotus purpuratus   | `s_purpuratus`          |
-
-#### Apicomplexa
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Apicomplexa                     | `apicomplexa`           |
 | Plasmodium falciparum           | `p_falciparum`          |
 | Toxoplasma gondii               | `t_gondii`              |
 | Eimeria maxima                  | `e_maxima`              |
-
-#### Euglenozoa
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Euglenozoa                      | `euglenozoa`            |
 | Trypanosoma brucei              | `t_brucei`              |
 | Leishmania donovani             | `l_donovani`            |
-
-#### Evosea
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Evosea                          | `evosea`                |
 | Dictyostelium discoideum        | `d_discoideum`          |
 | Entamoeba histolytica           | `e_histolytica`         |
-
-#### Fornicata
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Fornicata                       | `fornicata`             |
 | Giardia intestinalis            | `g_intestinalis`        |
-
-#### Streptophyta
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Streptophyta                    | `streptophyta`          |
 | Arabidopsis thaliana            | `a_thaliana`            |
 | Brachypodium distachyon         | `b_distachyon`          |
 | Glycine max                     | `g_max`                 |
@@ -112,29 +98,20 @@ NetStart 2.0 has been developed with python and the following package versions: 
 | Solanum lycopersicum            | `s_lycopersicum`        |
 | Triticum aestivum               | `t_aestivum`            |
 | Zea mays                        | `z_mays`                |
-
-#### Ascomycota
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Ascomycota                      | `ascomycota`            |
 | Aspergillus nidulans            | `a_nidulans`            |
 | Neurospora crassa               | `n_crassa`              |
 | Saccharomyces cerevisiae        | `s_cerevisiae`          |
 | Schizosaccharomyces pombe       | `s_pombe`               |
-
-#### Basidiomycota
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Basidiomycota                   | `basidiomycota`         |
 | Coprinopsis cinerea             | `c_cinerea`             |
 | Cryptococcus neoformans         | `c_neoformans`          |
 | Schizophyllum commune           | `s_commune`             |
 | Ustilago maydis                 | `u_maydis`              |
-
-#### Mucoromycota
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
+| Mucoromycota                    | `mucoromycota`          |
 | Rhizophagus irregularis         | `r_irregularis`         |
-
-#### Unknown
-| Sequence Origin                 | Input Argument (`-o`)   |
 |---------------------------------|-------------------------|
 | Unknown                         | `unknown`               |
