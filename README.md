@@ -26,9 +26,9 @@ The origin of the sequence and the input file are required. Besides these, NetSt
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `-out`, `--output_filename`     | Output file name without file extension.                                                                                                             |
 | `--output_results`              |       Output format of predictions. The predictions can be provided in three versions:                                                               |
-|                                 |        `all` (default) returns the Predicted probabilities for all ATGs in the input sequence(s).                                                    |
-|                                 |        `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence.       |
-|                                 |        `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold.             |
+                                         `all` (default) returns the Predicted probabilities for all ATGs in the input sequence(s).                                                    
+                                         `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence.       
+                                         `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold.             
 | `-`, `--`                    |             |
 | `-`, `--`                    |             |
 | `-`, `--`                    |             |
