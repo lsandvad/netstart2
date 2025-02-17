@@ -3,6 +3,7 @@ data/data_model/models/
 data/data_model/models/**
 *.pth
 *.safetensors
+netstart2_preds_out.csv
 
 
 # Byte-compiled / optimized / DLL files
