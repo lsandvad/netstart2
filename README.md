@@ -29,29 +29,13 @@ The origin of the sequence and the input file (fasta format) are required. Besid
 | `--threshold`                | Set the threshold for filtering predictions. This argument only works with `--output_results threshold`. Default: `0.625`.            |
 | `--gzip_outfile`             | Specify if output file should be gzipped. Default: `False`.            |
 | `--batch_size`               | The batch size for running predictions. Default: `64`.            |
-| `-`, `--`                    |             |
+| `-o`, `--origin`             | The sequence origin (See table XXX for options).            |
+| `-in`, `--input_filename`    | The input file in FASTA format. The input file can also be in gzipped format with .gz-extension            |
 
 
  
  The predictions are returned as a .csv file. 
 
-    
-    optional.add_argument('--batch_size',
-                        type=int,
-                        default=64,
-                        help='Set batch size (default: 64).')
-    
-    # Required arguments last
-    required = parser.add_argument_group('Required arguments')
-    required.add_argument('-o', '--origin', 
-                       type=str,
-                       required=True,
-                       help='Input the origin of the sequence.')
-    
-    required.add_argument('-in', '--input_filename',
-                       type=str,
-                       required=True,
-                       help='Input file name in FASTA format (can also be in gzipped format with .gz-extension).')
 
 
 ### Input Sequence Origin Specifications
