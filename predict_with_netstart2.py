@@ -1084,43 +1084,47 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
 
 def main():
     # Create the parser
-    parser = argparse.ArgumentParser(description='Predict Eukaryotic Translation Initiation Sites with NetStart 2.0')
+    parser = argparse.ArgumentParser(description='Predict Eukaryotic Translation Initiation Sites with NetStart 2.0. The model returns the probability of a given ATG being a start codon.\
+                                     The program with arguments should be run as: predict_with_netstart2.py [optional arguments] [required arguments]')
     
-    # Add the arguments
-    parser.add_argument('-o', '--origin', 
-                       type=str,
-                       required=True,
-                       help='Input the origin of the sequence.')
-    
-    parser.add_argument('-in', '--input_filename',
-                       type=str,
-                       required=True,
-                       help='Input file name in FASTA format (can also be in gzipped format with .gz-extension).')
-    
-    parser.add_argument('-out', '--output_filename',
+    # Optional arguments first
+    optional = parser.add_argument_group('Optional arguments')
+    optional.add_argument('-out', '--output_filename',
                        type=str,
                        default="netstart2_preds_out",
                        help='Output file name without file extension.')
     
-    parser.add_argument('--output_results',
+    optional.add_argument('--output_results',
                        type=str,
                        default="all",
                        help='Your wanted output. Choose between "max_prob", "threshold" or "all" (default: all).')
     
-    parser.add_argument('--threshold',
+    optional.add_argument('--threshold',
                         type=float,
                         default=0.625,
                         help='Set the threshold for filtering predictions. Only works with "--output_results threshold" (default: 0.625).')
 
-    parser.add_argument('--gzip_outfile', 
+    optional.add_argument('--gzip_outfile', 
                         action='store_true',   
                         default=False,
                         help='Specify if output file should be gzipped (default: False).')
     
-    parser.add_argument('--batch_size',
+    optional.add_argument('--batch_size',
                         type=int,
                         default=64,
                         help='Set batch size (default: 64).')
+    
+    # Required arguments last
+    required = parser.add_argument_group('Required arguments')
+    required.add_argument('-o', '--origin', 
+                       type=str,
+                       required=True,
+                       help='Input the origin of the sequence.')
+    
+    required.add_argument('-in', '--input_filename',
+                       type=str,
+                       required=True,
+                       help='Input file name in FASTA format (can also be in gzipped format with .gz-extension).')
 
     # Parse the arguments
     args = parser.parse_args()
