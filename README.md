@@ -7,6 +7,7 @@ NetStart 2.0 integrates the ESM-2 protein language model for assessing transitio
 ## NetStart 2.0 Online Server
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
+## Run NetStart 2.0 Locally
 ### Requirements
 NetStart 2.0 has been developed in Python, with the following package versions: \
 * torch==1.12.1
@@ -16,24 +17,23 @@ NetStart 2.0 has been developed in Python, with the following package versions: 
 * transformers==4.36.0 
 
 ## Usage Instructions
-NetStart 2.0 can be run locally via the command line by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: 
+NetStart 2.0 can be run via the command line by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: 
 ```
 python3 ./predict_with_netstart2.py [optional arguments] -o ORIGIN -in INPUT_FILENAME 
 ```
-The origin of the sequence and the input file (fasta format) are required. Besides these, NetStart 2.0 can take a range of optional arguments: 
+The sequence origin and input file (in FASTA format) are required. Additionally, NetStart 2.0 accepts a range of optional arguments:
 
 | Input Argument                  | Description                                                                                                                                          |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `-out`, `--output_filename`     | Output file name without file extension.                                                                                                             |
-| `--output_results`              | Output format of predictions. The predictions can be provided in three versions: `all` returns the Predicted probabilities for all ATGs in the input sequence(s). `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence. `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold. Default: `all`.|
-| `--threshold`                   | Set the threshold for filtering predictions. This argument only works with `--output_results threshold`. Default: `0.625`.            |
-| `--gzip_outfile`                | Specify if output file should be gzipped. Default: `False`.            |
-| `--batch_size`                  | The batch size for running predictions. Default: `64`.            |
-| `-o`, `--origin`                | The origin of the sequence(s) (See table [here](#input-sequence-origin-specifications) for options).            |
-| `-in`, `--input_filename`       | The input file in FASTA format. The input file can also be in gzipped format with .gz-extension            |
+| `-out`, `--output_filename`     | Name of the output file without the file extension.                                                                                                   |
+| `--output_results`              | Format of the prediction results. Options are: `all` (returns predicted probabilities for all ATGs in the input sequence(s)), `max_prob` (returns only the ATG with the highest predicted probability for each input sequence), and `threshold` (returns all ATGs with a predicted probability above the specified threshold). Default: `all`. |
+| `--threshold`                   | Sets the threshold for filtering predictions. This option is only applicable when `--output_results` is set to `threshold`. Default value: `0.625`.   |
+| `--gzip_outfile`                | Specifies whether the output file should be gzipped. Default value: `False`.                                                                           |
+| `--batch_size`                  | Specifies the batch size for running predictions. Default value: `64`.                                                                                 |
+| `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
+| `-in`, `--input_filename`       | Input file in FASTA format. The file can also be gzipped with a .gz extension.                                                                        |
 
 
- 
  The predictions are returned as a .csv file. 
 
 
