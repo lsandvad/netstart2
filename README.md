@@ -22,29 +22,19 @@ python3 ./predict_with_netstart2.py [optional arguments] -o ORIGIN -in INPUT_FIL
 ```
 The origin of the sequence and the input file are required. Besides these, NetStart 2.0 can take a range of optional arguments: 
 
-| Input Argument                  | Description             |
-|---------------------------------|-------------------------|
-| `-out`, `--output_filename`                    | Output file name without file extension.             |
-| `--output_results`                    | Output format of predictions. The predictions can be provided in three versions: `all`            |
+| Input Argument                  | Description                                                                                                                                          |
+|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-out`, `--output_filename`     | Output file name without file extension.                                                                                                             |
+| `--output_results`              |       Output format of predictions. The predictions can be provided in three versions:                                                               |
+|                                 |        `all` (default) returns the Predicted probabilities for all ATGs in the input sequence(s).                                                    |
+|                                 |        `max_prob` returns only the ATG with the highest predicted probability for being a translation initiation site for each input sequence.       |
+|                                 |        `threshold` returns all ATGs having a predicted probability of being a translation initiation site above the specified threshold.             |
 | `-`, `--`                    |             |
 | `-`, `--`                    |             |
 | `-`, `--`                    |             |
 | `-`, `--`                    |             |
 
 
-
-
-    # Optional arguments first
-    optional = parser.add_argument_group('Optional arguments')
-    optional.add_argument('-out', '--output_filename',
-                       type=str,
-                       default="netstart2_preds_out",
-                       help='Output file name without file extension.')
-    
-    optional.add_argument('--output_results',
-                       type=str,
-                       default="all",
-                       help='Your wanted output. Choose between "max_prob", "threshold" or "all" (default: all).')
     
     optional.add_argument('--threshold',
                         type=float,
