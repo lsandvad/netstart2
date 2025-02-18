@@ -10,7 +10,7 @@ For smaller datasets, the NetStart 2.0 prediction server is available for use [h
 
 ## Run NetStart 2.0 Locally
 ### Requirements
-NetStart 2.0 has been developed in Python, with the following package versions: \
+NetStart 2.0 has been developed in Python, with the following package versions:
 * torch==1.12.1
 * numpy==1.23.5
 * pandas==2.0.3
