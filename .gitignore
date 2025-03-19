@@ -5,6 +5,7 @@ data/data_model/models/**
 *.safetensors
 netstart2_preds_out.csv
 .Rhistory
+scripts
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
