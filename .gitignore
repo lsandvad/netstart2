@@ -1,11 +1,12 @@
 # Model files
-data/data_model/models/
-data/data_model/models/**
+src/model_config/models/
+src/model_config/models/**
 *.pth
 *.safetensors
 netstart2_preds_out.csv
 .Rhistory
 scripts
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
