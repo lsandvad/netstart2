@@ -114,7 +114,7 @@ def load_model(model_no):
     """
 
     #Define the local directory where models will be cached
-    local_dir = './src/model_configmodels/'
+    local_dir = './src/model_config/models/'
     model_name = f'netstart_model{model_no}.pth'
     local_path = os.path.join(local_dir, model_name)
     
@@ -283,19 +283,19 @@ def load_taxonomy_mappings():
     """
     
     #Read in json files with taxonomy information
-    with open("./src/model_configtaxonomy/species_names.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_names.json", 'r') as file:
         species_names_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_kingdom.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_kingdom.json", 'r') as file:
         species_kingdom_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_phylum.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_phylum.json", 'r') as file:
         species_phylum_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_class.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_class.json", 'r') as file:
         species_class_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_order.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_order.json", 'r') as file:
         species_order_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_family.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_family.json", 'r') as file:
         species_family_dict = json.load(file)
-    with open("./src/model_configtaxonomy/species_to_genus.json", 'r') as file:
+    with open("./src/model_config/taxonomy/species_to_genus.json", 'r') as file:
         species_genus_dict = json.load(file)
 
     #Create a list of unique IDs from all dictionaries, excluding '0' 
@@ -764,7 +764,7 @@ class NetstartModel(nn.Module):
 
         ###Define layers###
         #Define pretrained model for amino acid encodings
-        self.pretrained_model_aa = AutoModel.from_pretrained("./src/model_configpretrained_models/finetuned_models/esm2-8m-finetuned_model_100u_100d_model"+str(model_no))
+        self.pretrained_model_aa = AutoModel.from_pretrained("./src/model_config/pretrained_models/finetuned_models/esm2-8m-finetuned_model_100u_100d_model"+str(model_no))
         
         #Define hidden layer to downscale amino acid sequence representations
         self.hidden_layer_aa = nn.Linear(self.pretrained_model_aa.config.hidden_size*aa_encoding_length, hidden_neurons_aa)
@@ -894,7 +894,7 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
     """
 
     #Load the json file back into Python as a dictionary
-    with open("./src/model_confighyperparameters/netstart_model"+str(model_no)+"_hyperparameters.json", 'r') as json_file:
+    with open("./src/model_config/hyperparameters/netstart_model"+str(model_no)+"_hyperparameters.json", 'r') as json_file:
         model_config = json.load(json_file)
     
     #Get processed sequences and required information for model

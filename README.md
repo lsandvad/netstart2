@@ -30,7 +30,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `--output_results`              | Format of the prediction results. Options are: `all` (returns predicted probabilities for all ATGs in the input sequence(s)), `max_prob` (returns only the ATG with the highest predicted probability for each input sequence), and `threshold` (returns all ATGs with a predicted probability above the specified threshold). Default: `all`. |
 | `--threshold`                   | Sets the threshold for filtering predictions. This option is only applicable when `--output_results` is set to `threshold`. Default value: `0.625`.   |
 | `--gzip_outfile`                | Specifies whether the output file should be gzipped. Default value: `False`.                                                                          |
-| `--batch_size`                  | Specifies the number of samples to process togethr in a single pass during model prediction. Default value: `64`.                                     |
+| `--batch_size`                  | Specifies the number of samples to process together in a single pass during prediction. Default value: `64`.                                     |
 | `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
 | `-in`, `--input_filename`       | Input file in FASTA format. The file can also be gzipped with a .gz extension.                                                                        |
 
