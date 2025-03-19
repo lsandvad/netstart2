@@ -4,7 +4,7 @@ data/data_model/models/**
 *.pth
 *.safetensors
 netstart2_preds_out.csv
-
+.Rhistory
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
