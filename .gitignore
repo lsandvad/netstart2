@@ -2,7 +2,6 @@
 src/model_config/models/
 src/model_config/models/**
 *.pth
-*.safetensors
 netstart2_preds_out.csv
 .Rhistory
 scripts
