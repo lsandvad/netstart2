@@ -8,6 +8,9 @@ NetStart 2.0 integrates the ESM-2 protein language model for assessing transitio
 ## NetStart 2.0 Online Server
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
+### Training and test sets
+The datasets used for training and testing NetStart 2.0 can be downloaded from the prediction server in the section **Data**.
+
 ## Run NetStart 2.0 Locally
 ### Requirements
 NetStart 2.0 has been developed in Python, with the following package versions:
