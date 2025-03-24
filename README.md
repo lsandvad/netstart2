@@ -4,7 +4,6 @@ NetStart 2.0 is a deep learning-based model that predicts canonical translation 
 ## About
 NetStart 2.0 integrates the ESM-2 protein language model for assessing transitions from non-coding to coding regions with local sequence context and taxonomical information. 
 
-
 ## NetStart 2.0 Online Server
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
@@ -35,7 +34,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `--gzip_outfile`                | Specifies whether the output file should be gzipped. Default value: `False`.                                                                          |
 | `--batch_size`                  | Specifies the number of samples to process together in a single pass during prediction. Default value: `64`.                                     |
 | `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
-| `-in`, `--input_filename`       | Input file in FASTA format. The file can also be gzipped with a .gz extension.                                                                        |
+| `-in`, `--input_filename`       | Input file in FASTA format. The allowed input alphabet is A, C, G, T, U and N (unknown). All the other letters will be converted to N before processing. T and U are treated as equivalent. The input file can also be provided in gzipped version with a .gz extension.                                                                        |
 
 
 The predictions are returned as a .csv file. 
