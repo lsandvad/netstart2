@@ -230,8 +230,8 @@ def encode_nucleotide_to_amino_acid(sequence):
     #Iterate through the nucleotide sequence to encode codons
     for i in range(0, len(sequence), 3):
         codon = sequence[i:i+3]
-        #Get amino acid (stop codons represented as unknown tokens, uncertain codons (with N etc.) represented as pad tokens)
-        amino_acid = genetic_code.get(codon, "<pad>")
+        #Get amino acid (stop codons represented as unknown tokens, uncertain codons (with N etc.) represented as mask tokens)
+        amino_acid = genetic_code.get(codon, "<mask>")
         amino_acid_sequence += amino_acid
 
     return amino_acid_sequence
@@ -654,6 +654,9 @@ def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, ba
         mask_token_indices = batch_encodings['input_ids'] == tokenizer_aa.mask_token_id
         attention_masks.masked_fill_(pad_token_indices | mask_token_indices, 0)
 
+        print(tokenizer_aa.mask_token_id)
+        print(tokenizer_aa.pad_token_id)
+
         #Append results to the encodings dictionary
         encodings_aa['input_ids'].append(batch_encodings['input_ids'])
         encodings_aa['attention_mask'].append(attention_masks)
@@ -661,6 +664,8 @@ def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, ba
     #Concatenate all batches into single tensors
     encodings_aa['input_ids'] = torch.cat(encodings_aa['input_ids'], dim=0)
     encodings_aa['attention_mask'] = torch.cat(encodings_aa['attention_mask'], dim=0)
+
+    print(encodings_aa)
 
     return encodings_aa
 
