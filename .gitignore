@@ -5,7 +5,7 @@ src/model_config/models/**
 netstart2_preds_out.csv
 .Rhistory
 scripts
-
+*.DS_store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
