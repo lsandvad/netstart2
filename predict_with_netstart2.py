@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.8
-
 import time
 import numpy as np
 import pandas as pd
@@ -230,7 +228,7 @@ def encode_nucleotide_to_amino_acid(sequence):
     #Iterate through the nucleotide sequence to encode codons
     for i in range(0, len(sequence), 3):
         codon = sequence[i:i+3]
-        #Get amino acid (stop codons represented as unknown tokens, uncertain codons (with N etc.) represented as mask tokens)
+        #Get amino acid (stop codons represented as unknown tokens, uncertain codons (with N etc.) are represented as mask tokens and masked during predictions)
         amino_acid = genetic_code.get(codon, "<mask>")
         amino_acid_sequence += amino_acid
 
@@ -262,7 +260,7 @@ def one_hot_encode(sequence):
     #Use advanced indexing to set the appropriate positions to 1
     positions = torch.arange(len(sequence))[[char in mapping for char in sequence]]
     encoding[indices, positions] = 1
-        #For 'N', we do nothing, so the corresponding column remains all zeros
+    #For 'N', we do nothing, so the corresponding column remains all zeros
     
     return encoding
 
@@ -629,7 +627,7 @@ def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, ba
     tokenizer_aa = AutoTokenizer.from_pretrained(
         "facebook/esm2_t6_8M_UR50D",
         do_lower_case=False,
-        model_max_length=aa_seqs_len + 2  # Include special tokens
+        model_max_length=aa_seqs_len + 2  # Include special tokens (CLS and EOS)
     )
 
     #Split sequences into batches for efficiency
@@ -654,9 +652,6 @@ def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, ba
         mask_token_indices = batch_encodings['input_ids'] == tokenizer_aa.mask_token_id
         attention_masks.masked_fill_(pad_token_indices | mask_token_indices, 0)
 
-        print(tokenizer_aa.mask_token_id)
-        print(tokenizer_aa.pad_token_id)
-
         #Append results to the encodings dictionary
         encodings_aa['input_ids'].append(batch_encodings['input_ids'])
         encodings_aa['attention_mask'].append(attention_masks)
@@ -664,8 +659,6 @@ def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, ba
     #Concatenate all batches into single tensors
     encodings_aa['input_ids'] = torch.cat(encodings_aa['input_ids'], dim=0)
     encodings_aa['attention_mask'] = torch.cat(encodings_aa['attention_mask'], dim=0)
-
-    print(encodings_aa)
 
     return encodings_aa
 
@@ -746,7 +739,7 @@ class MultiInputDataset(torch.utils.data.Dataset): ##Write comments.
 
 class NetstartModel(nn.Module):
     """
-    Define model architecture.
+    Define the NetStart 2.0 model architecture.
     """
     def __init__(self, 
                  aa_encoding_length, 
@@ -776,7 +769,7 @@ class NetstartModel(nn.Module):
 
         #Define feedforward hidden layers for local start codon context window
         self.nt_layers = nn.ModuleList()
-        self.nt_layers.append(nn.Linear(nt_encoding_length, hidden_neurons_nt))  # First layer
+        self.nt_layers.append(nn.Linear(nt_encoding_length, hidden_neurons_nt)) 
 
         #Additional hidden layers for nt encoding if `num_hidden_layers_nt > 1`
         for _ in range(num_hidden_layers_nt - 1):
@@ -883,7 +876,7 @@ class NetstartModel(nn.Module):
         return output
     
 
-def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes, batch_size):
+def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes, batch_size, compute_device):
     """
     Extract data in correct format and instantiate model with specified, optimized hyperparameters.
 
@@ -935,7 +928,13 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
                           model_no = model_no,
                           num_hidden_layers_nt=model_config["depth_nt_window"])
     
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if compute_device == "cuda":
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    elif compute_device == "mps":
+        device = torch.device("mps" if torch.mps.is_available() else "cpu")
+    else:
+        device = torch.device("cpu")
+
     model.to(device)
 
     #Instantiate model with checkpoint
@@ -947,7 +946,7 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
     return model, dataloader_nt
 
 
-def get_predictions(origin, input_filename, output_filename, output_results, threshold, gzip_outfile, batch_size):
+def get_predictions(origin, input_filename, output_filename, output_results, threshold, gzip_outfile, batch_size, compute_device):
     """
     Run entire pipeline to get predictions.
 
@@ -995,28 +994,37 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
-                                                batch_size = batch_size)
+                                                batch_size = batch_size,
+                                                compute_device = compute_device)
         model2, test_loader2 = ExtractDataAndModel(model_no = "2", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
-                                                batch_size = batch_size)
+                                                batch_size = batch_size,
+                                                compute_device = compute_device)
         model3, test_loader3 = ExtractDataAndModel(model_no = "3", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
-                                                batch_size = batch_size)
+                                                batch_size = batch_size,
+                                                compute_device = compute_device)
         model4, test_loader4 = ExtractDataAndModel(model_no = "4", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
-                                                batch_size = batch_size)
+                                                batch_size = batch_size,
+                                                compute_device = compute_device)
         
         #Calculate and print total time
         total_time = time.time() - start_time
         print(f"\nData processing finished. Processing time: {total_time:.2f} seconds ({total_time/60:.2f} minutes).")
             
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if compute_device == "cuda":
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        elif compute_device == "mps":
+            device = torch.device("mps" if torch.mps.is_available() else "cpu")
+        else:
+            device = torch.device("cpu")
         
         #Initialize
         information_dict = dict()
@@ -1100,14 +1108,15 @@ def main():
                        help='Output file name without file extension.')
     
     optional.add_argument('--output_results',
-                       type=str,
-                       default="all",
-                       help='Your wanted output. Choose between "max_prob", "threshold" or "all" (default: all).')
+                          type=str,
+                          default="all",
+                          choices=["all", "max_prob", "threshold"],
+                          help='Your wanted output. Options: "max_prob" (returns only the ATG predicted with highest probability per transcript), "threshold" (returns all ATGs predicted with a probability above threshold) or "all" (returns all predictions).')
     
     optional.add_argument('--threshold',
                         type=float,
                         default=0.625,
-                        help='Set the threshold for filtering predictions. Only works with "--output_results threshold" (default: 0.625).')
+                        help='Set the threshold for filtering predictions. This options works only with "--output_results threshold" (default: 0.625).')
 
     optional.add_argument('--gzip_outfile', 
                         action='store_true',   
@@ -1118,6 +1127,11 @@ def main():
                         type=int,
                         default=64,
                         help='Set batch size (default: 64).')
+    optional.add_argument('-compute_device',
+                          type = str,
+                          default = "cuda",
+                          choices=["cuda", "mps", "cpu"], 
+                          help='Hardware accelerator to use. Options: "cuda" (NVIDIA GPU), "mps" (Apple Silicon), or "cpu". The program will automatically fall back to CPU if the requested device is unavailable.')
     
     # Required arguments last
     required = parser.add_argument_group('Required arguments')
@@ -1153,7 +1167,8 @@ def main():
                     output_results = args.output_results, 
                     threshold = args.threshold,
                     gzip_outfile = args.gzip_outfile,
-                    batch_size=args.batch_size)
+                    batch_size=args.batch_size,
+                    compute_device=args.compute_device)
 
 
 if __name__ == "__main__":

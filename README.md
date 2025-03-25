@@ -35,7 +35,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `--batch_size`                  | Specifies the number of samples to process together in a single pass during prediction. Default value: `64`.                                     |
 | `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
 | `-in`, `--input_filename`       | Input file in FASTA format. The allowed input alphabet is A, C, G, T, U and N (unknown). All the other letters will be converted to N before processing. T and U are treated as equivalent. The input file can also be provided in gzipped version with a .gz extension.                                                                        |
-
+|`--compute_device` | Which hardware accelerator to use. Options are:  `cuda` (NVIDIA GPU), `mps` (Apple Silicon), or `cpu`. The program will automatically fall back to CPU if the requested device is unavailable. |
 
 The predictions are returned as a .csv file. 
 
