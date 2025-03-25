@@ -1,4 +1,4 @@
-# NetStart 2.0: Prediction of Eukaryotic Translation Initiation Sites Using Protein Language Modeling
+# NetStart 2.0: Prediction of Eukaryotic Translation Initiation Sites Using a Protein Language Model
 NetStart 2.0 is a deep learning-based model that predicts canonical translation initiation sites in mRNA transcripts in species across the eukaryotic domain.
 
 ## About
