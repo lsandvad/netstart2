@@ -4,9 +4,10 @@ src/model_config/models/**
 *.pth
 netstart2_preds_out.csv
 .Rhistory
-scripts
 *.DS_store
 README.txt
+scripts/predict/
+scripts/predict/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,0 +1,170 @@
+---
+title: "Analysis of mRNA transcripts"
+author: "Line Sandvad Nielsen"
+date: "2023-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Load all required packages
+
+```{r, echo = FALSE}
+rm(list = ls())
+library("tidyverse")
+library("ggpubr")
+library("stringr")
+library("compositions")
+library("tidyverse")
+#package "factoextra" is required for PCA visualization
+library("devtools")
+library("factoextra")
+library("dplyr")
+library("ggplot2")
+library("ggfortify")
+library("patchwork")
+library("xtable")
+library("broom")
+library("readr")
+library("ggridges")
+library("ape")
+```
+
+
+## Load data and wrangle
+
+```{r, echo = FALSE}
+# Directory path where all CSV files are located
+data_directory <- "../../../data/data_analysis/data_preparatory_analysis/transcripts_data/"
+
+# List all CSV files in the directory
+csv_files <- list.files(path = data_directory, pattern = "*.csv", full.names = TRUE)
+
+# Custom labels for each organism (assuming the file names correspond to organism names)
+identifier_labels <- tools::file_path_sans_ext(basename(csv_files))
+
+# Create a list to hold the data frames for each organism
+organism_data_list <- list()
+
+# Read and process data for each organism
+for (i in seq_along(csv_files)) {
+  data <- read_csv(csv_files[i])
+  data$Species <- sub("^transcript_data_", "", identifier_labels[as.integer(i)])
+  organism_data_list[[i]] <- data
+}
+
+# Combine all data frames into a single tibble
+transcripts_info <- bind_rows(organism_data_list, .id = "Number") %>% 
+  select(!Number)
+
+#Turn all TIS start codons into upper case
+transcripts_info <- transcripts_info %>% 
+  mutate(TIS_codon = toupper(TIS_codon))
+
+#split dataset based on annotation source and remove UTR lengths of 0 to reduce noise
+transcripts_info_gnomon <- transcripts_info %>% filter(Source == "Gnomon", 
+                                                       UTR_5_length != 0)
+
+transcripts_info_refseq <- transcripts_info %>% filter(Source %in% c("RefSeq", "BestRefSeq"), 
+                                                       UTR_5_length != 0)
+
+```
+
+## Initiation codon distribution in data
+
+
+```{r}
+# Count the frequency of each codon
+codon_counts <- transcripts_info %>%
+  group_by(TIS_codon) %>%
+  summarise(count = n()) %>%
+  filter(count > 10)
+  
+# Print the table
+print(codon_counts)
+
+# Calculate the percentage of ATG codon
+atg_percentage <- (codon_counts$count[codon_counts$TIS_codon == "ATG"] / sum(codon_counts$count)) * 100
+
+# Print the percentage
+cat("Percentage of ATG:", atg_percentage, "%\n")
+
+# Create a bar plot with count numbers
+codon_counts %>% filter(count > 5) %>% 
+ggplot(aes(x = TIS_codon, y = count)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 3) +  
+  labs(x = "Codon Triplets", 
+       y = "Frequency",
+       title = "Distribution of Usage of Start Codons as TIS across all Species",
+       subtitle = "Shown for codons occuring in more than 5 cases",
+       caption = paste("Percentage of ATG:", round(atg_percentage, digits = 2), "%")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+###Do it again but just for Homo sapiens
+# Count the frequency of each codon
+codon_counts_homo <- transcripts_info %>%
+  filter(Species == "homo_sapiens") %>% 
+  group_by(TIS_codon) %>%
+  summarise(count = n())
+
+# Calculate the percentage of ATG codon
+atg_percentage <- (codon_counts_homo$count[codon_counts_homo$TIS_codon == "ATG"] / sum(codon_counts_homo$count)) * 100
+
+# Create a bar plot with count numbers
+codon_counts_homo %>% filter(count > 5) %>% 
+ggplot(aes(x = TIS_codon, y = count)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = count), vjust = -0.5, size = 3) +  
+  labs(x = "Codon Triplets", 
+       y = "Frequency",
+       title = "Distribution of Usage of Start Codons as TIS in Homo sapiens",
+       subtitle = "Shown for codons occuring in more than 5 cases",
+       caption = paste("Percentage of ATG:", round(atg_percentage, digits = 2), "%")) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## Distribution of 5' UTR lengths
+```{r, echo=FALSE, fig.width=7, fig.height=5}
+median_gnomon <- median(transcripts_info_gnomon$UTR_5_length)
+median_refseq <- median(transcripts_info_refseq$UTR_5_length)
+
+transcripts_info %>% filter(UTR_5_length != 0) %>%
+  mutate(`Annotation source` = factor(case_when(Source == "BestRefSeq" ~ "RefSeq",
+                                                Source == "RefSeq" ~ "RefSeq",
+                                                Source == "Gnomon" ~ "Gnomon"), levels = c("RefSeq", "Gnomon"))) %>% 
+ggplot(mapping = aes(x = UTR_5_length,
+                     color = `Annotation source`,
+                     fill = `Annotation source`)) +
+  geom_density(alpha=0.3) + 
+  geom_histogram(aes(y=..density..), alpha = 0.5,
+                position="identity",
+                binwidth = 20) +
+  labs(x = "5' UTR length (nt)",
+       y = "Frequency",
+       caption = paste("Median length 5' UTR with Gnomon:", median_gnomon, "nts\nMedian length 5' UTR with RefSeq:", median_refseq, "nts")) +
+  xlim(0,1500) +
+  scale_color_manual(values = c("Gnomon" = "cornflowerblue", "RefSeq" = "red")) +  # Change line colors
+  scale_fill_manual(values = c("Gnomon" = "cornflowerblue", "RefSeq" = "red")) +  # Change fill colors
+  theme(legend.position = "bottom") 
+ggsave("UTR_5_lengths_distribution.pdf", path = "./", width = 8, height = 6)
+
+utr_5_species <- transcripts_info %>% filter(UTR_5_length != 0) %>%
+  mutate(Source = case_when(Source == "Gnomon" ~ "Gnomon",
+                            Source == "BestRefSeq" ~ "RefSeq",
+                            Source == "RefSeq" ~ "RefSeq")) %>% 
+  group_by(Species, Source) %>%
+  summarize(Median = median(UTR_5_length)) %>% 
+  pivot_wider(names_from = Source, 
+              values_from = Median)
+
+# Generate a LaTeX table
+latex_table <- xtable(utr_5_species)
+latex_table
+
+```
+
+
