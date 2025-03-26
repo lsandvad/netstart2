@@ -8,7 +8,7 @@ NetStart 2.0 integrates the ESM-2 protein language model for assessing transitio
 For smaller datasets, the NetStart 2.0 prediction server is available for use [here](https://services.healthtech.dtu.dk/services/NetStart-2.0/). 
 
 ### Training and test sets
-The datasets used for training and testing NetStart 2.0 can be downloaded from the prediction server in the section **Data**.
+The datasets used for training and testing NetStart 2.0 can be downloaded from the [prediction server](https://services.healthtech.dtu.dk/services/NetStart-2.0/) from the section **Data**.
 
 ## Run NetStart 2.0 Locally
 ### Requirements
