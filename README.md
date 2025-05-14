@@ -22,7 +22,9 @@ NetStart 2.0 has been developed in Python, with the following package versions:
 ### Usage Instructions
 NetStart 2.0 can be run via the command line by cloning this repository and installing the required packages. 
 To test the installation, the following command line can be run from the project root:
+```
 python3 ./predict_with_netstart2.py -o chordata -in ./data_example/input_file.fasta
+```
 
 NetStart 2.0 can be run to predict on your own data using the general command:
 ```
