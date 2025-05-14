@@ -20,10 +20,16 @@ NetStart 2.0 has been developed in Python, with the following package versions:
 * transformers==4.36.0 
 
 ### Usage Instructions
-NetStart 2.0 can be run via the command line by cloning this repository and installing the required packages. From the project root, NetStart 2.0 can be run using: 
+NetStart 2.0 can be run via the command line by cloning this repository and installing the required packages. 
+To test the installation, the following command line can be run from the project root:
+python3 ./predict_with_netstart2.py -o chordata -in ./data_example/input_file.fasta
+
+NetStart 2.0 can be run to predict on your own data using the general command:
 ```
 python3 ./predict_with_netstart2.py [optional arguments] -o ORIGIN -in INPUT_FILENAME 
 ```
+Please note that the program uses the information in the /src directory. 
+
 The sequence origin and input file (in FASTA format) are required. Additionally, NetStart 2.0 accepts a range of optional arguments:
 
 | Input Argument                  | Description                                                                                                                                          |
