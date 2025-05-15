@@ -1138,6 +1138,13 @@ def main():
     required.add_argument('-o', '--origin', 
                        type=str,
                        required=True,
+                       choices=['a_mississippiensis', 'a_carolinensis', 'a_gambiae', 'a_mellifera', 'a_thaliana', 'a_nidulans', 'b_taurus', 'b_distachyon', 'c_elegans', 'c_lupus', 'c_livia', 
+                                'c_cinerea', 'c_neoformans', 'd_rerio', 'd_carinata', 'd_discoideum', 'd_melanogaster', 'e_maxima', 'e_histolytica', 'e_caballus', 'g_gallus', 'g_intestinalis', 'g_max',
+                                'g_gorilla', 'h_sapiens', 'h_vulgare', 'l_donovani', 'l_japonicus', 'm_sexta', 'm_truncatula', 'm_musculus', 'n_crassa', 'n_tabacum', 'o_niloticus', 'o_cuniculus',
+                                'o_sativa', 'o_latipes', 'o_aries', 'p_troglodytes', 'p_dactylifera', 'p_falciparum', 'r_norvegicus', 'r_irregularis', 's_cerevisiae', 's_commune', 's_pombe',
+                                's_moellendorffii', 's_viridis', 's_lycopersicum', 's_purpuratus', 's_scrofa', 't_guttata', 't_gondii', 't_castaneum', 't_adhaerens', 't_aestivum', 't_brucei',
+                                'u_maydis', 'x_laevis', 'z_mays', 'chordata', 'nematoda', 'arthropoda', 'placozoa', 'echinodermata', 'apicomplexa', 'euglenozoa', 'evosea', 'fornicata',
+                                'streptophyta', 'ascomycota', 'basidiomycota', 'mucoromycota', 'unknown'],
                        help='Input the origin of the sequence.')
     
     required.add_argument('-in', '--input_filename',
