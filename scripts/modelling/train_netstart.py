@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.8
+
 import os
 import numpy as np
 import pandas as pd
@@ -6,6 +8,7 @@ from collections import defaultdict
 from transformers import AutoTokenizer, AutoModel
 import wandb
 
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -16,13 +19,11 @@ from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
 from sklearn.metrics import matthews_corrcoef
 from sklearn.metrics import average_precision_score
 
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
-
 #train all 4 models with the optimized, respective hyperparameters
 model_no = 1
 
 #Define filenames
-hyperpars_filename = 'netstart_model'+str(model_no)+'_hyperparameters.json'
+hyperpars_filename = 'netstart_model'+str(model_no)+'_final_hyperparameters.json'
 esm2_pretrained = "esm2-8m-finetuned_model_100u_100d_model" + str(model_no)
 netstart_model_filename = "netstart_model" + str(model_no) + "_final"
 
@@ -765,7 +766,7 @@ step = 0
 
 wandb.init(
     #set the wandb project where this run will be logged
-    project="train_netstart2",
+    project="train_netstart_final",
 
     config = {
         "model_number": str(model_no)
@@ -855,7 +856,6 @@ for epoch in range(num_epochs):
                 val_avg_loss = round(val_loss / len(val_loader), 6)
                 val_auc_roc = round(roc_auc_score(val_true_labels, val_predicted_probs), 6)
                 precision, recall, _ = precision_recall_curve(val_true_labels, val_predicted_probs)
-                val_avg_precision = average_precision_score(val_true_labels, val_predicted_probs)
                 val_pr_auc = round(auc(recall, precision), 6)
 
                 del loss
@@ -864,8 +864,7 @@ for epoch in range(num_epochs):
 
                 # Log overall metrics
                 wandb.log({"train_loss": train_avg_loss, "val_loss": val_avg_loss, 
-                           "Val AUROC": val_auc_roc, "Val AUPR": val_pr_auc, 
-                           "Val Precision": val_avg_precision})
+                           "Val AUROC": val_auc_roc, "Val AUPR": val_pr_auc})
 
                 # Log group-specific metrics
                 for g in groupwise_true_labels.keys():

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.8
+
 import os
 import numpy as np
 import pandas as pd
@@ -10,7 +12,7 @@ import torch.nn.functional as F
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, EsmForSequenceClassification
 
 #Clear the GPU memory cache
 torch.cuda.empty_cache()
@@ -21,9 +23,10 @@ os.environ['CUDA_LAUNCH_BLOCKING']="1"
 os.environ['TORCH_USE_CUDA_DSA'] = "1"
 
 #Define the model (train/val partitions) to finetune
-model_no = 4
+model_no = 3
 esm_model = "facebook/esm2_t6_8M_UR50D"
 esm_model_title = "esm2-8m"
+
 
 #define number of aas to extract
 extract_upstream_aa = 100
@@ -206,6 +209,10 @@ if model_no == 4:
     data_val = data_partition_4
 
 
+print(data_train.shape)
+print(data_val.shape)
+print(data_train)
+
 print("Extracting datasets (sequences and labels separately)")
 aa_sequences_train, labels_train, \
 aa_sequences_val, labels_val = extract_datasets(data_train,
@@ -235,6 +242,7 @@ tokenizer_aa = AutoTokenizer.from_pretrained(esm_model,
                                              do_lower_case=False, 
                                              model_max_length=aa_seqs_len + 2) # CLS token + aa sequence (1 token each) + EOS token
 
+
 #Turn amino acid sequences into tokens for model input
 train_encodings_aa = tokenizer_aa(aa_sequences_train, 
                             padding=True,  #pad sequences to max length and apply attention mask
@@ -258,23 +266,19 @@ aa_encodings_len = train_encodings_aa['input_ids'].shape[1] #amino acids + CLS +
 train_dataset = SeqDataset(train_encodings_aa, labels_train)
 val_dataset = SeqDataset(val_encodings_aa, labels_val)
 
-
-print("GPU available?", torch.cuda.is_available(), flush=True)
-print("Current device: ", torch.cuda.current_device(), flush=True)
-
 #Define model and run on GPU when possible
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("mps" if torch.mps.is_available() else "cpu")
 
 print("Running on: ", device, flush = True)
 print(f"Memory Allocated before loading model: {torch.cuda.memory_allocated(device) / 1024**3} GB")
-model = AutoModelForSequenceClassification.from_pretrained(esm_model, num_labels=1)
+model = EsmForSequenceClassification.from_pretrained(esm_model, num_labels=1)
 model.to(device)
 print(f"Memory Allocated after loading model: {torch.cuda.memory_allocated(device) / 1024**3} GB")
 
 # If multiple GPUs are available, use DataParallel
-if torch.cuda.is_available() and torch.cuda.device_count() > 1:
-    print(f"Using {torch.cuda.device_count()} GPUs!")
-    model = torch.nn.DataParallel(model)  # This wraps your model to use multiple GPUs
+#if torch.cuda.is_available() and torch.cuda.device_count() > 1:
+#    print(f"Using {torch.cuda.device_count()} GPUs!")
+#    model = torch.nn.DataParallel(model)  # This wraps your model to use multiple GPUs
 
 #Define settings for training
 epochs = 4
@@ -303,7 +307,8 @@ val_loader = DataLoader(
     batch_size=batch_size, 
     shuffle=True, 
     num_workers=8,  
-    pin_memory=True)
+    pin_memory=True
+    )
 
 #include class weights in loss function
 pos_weight = torch.tensor(3, dtype=torch.float).to(device)
@@ -336,7 +341,6 @@ for epoch in range(epochs):
     
     #Iterate through the training data batch-wise
     for i, batch in enumerate(train_loader):
-        print(f"Training on batch {i+1}/{len(train_loader)}.", flush=True)
         
         #Set model to training mode
         model.train()
@@ -434,17 +438,19 @@ for epoch in range(epochs):
                     counter_patience = 0
 
                     #Get the state dict (strip 'module.' if needed)
-                    if isinstance(model, torch.nn.DataParallel) or isinstance(model, torch.nn.parallel.DistributedDataParallel):
-                        model = model.module.state_dict()  # Strips 'module.' prefix
-                    else:
-                        model = model.state_dict()
+                    #if isinstance(model, torch.nn.DataParallel) or isinstance(model, torch.nn.parallel.DistributedDataParallel):
+                    #    model = model.module.state_dict()  # Strips 'module.' prefix
+                    #else:
+                    #    model = model.state_dict()
 
                     #Save the fine-tuned LM layers without the classification head
-                    base_model = model.base_model 
+                    base_model = model.base_model
+
+                    #Save only the LM layers without the classification head
                     base_model.save_pretrained('../../data/data_model/pretrained_models/finetuned_models/'+esm_model_title+'-finetuned_model_100u_100d_model'+str(model_no))
                     
                     # Save the fine-tuned model with classification head
-                    model.save_pretrained('../../data/data_model/models/' + esm_model_title + "_finetuned_full_model" + str(model) + ".pth")
+                    model.save_pretrained('../../data/data_model/models/' + esm_model_title + "_finetuned_full_model_100u_100d_model" + str(model_no) + ".pth")
         
                 else:
                     counter_patience += 1
