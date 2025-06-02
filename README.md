@@ -34,7 +34,7 @@ Please note that the program uses the information in the /src directory.
 
 The sequence origin and input file (in FASTA format) are required. Additionally, NetStart 2.0 accepts a range of optional arguments:
 
-| Input Argument                  | Description                                                                                                                                          |
+| Input Argument                     | Description                                                                                                                                            |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `-out`, `--output_filename`     | Name of the output file without the file extension.                                                                                                   |
 | `--output_results`              | Format of the prediction results. Options are: `all` (returns predicted probabilities for all ATGs in the input sequence(s)), `max_prob` (returns only the ATG with the highest predicted probability for each input sequence), and `threshold` (returns all ATGs with a predicted probability above the specified threshold). Default: `all`. |
