@@ -661,6 +661,8 @@ def extract_datasets_complement_strand(input_filename,
                     aa_seq_len = nucleotide_seq_len // 3
                     stop_codon_found = True
 
+                    first_stop_codon_pos_1_indexed -= 1
+
                     break
 
             if not stop_codon_found:
@@ -686,7 +688,7 @@ def extract_datasets_complement_strand(input_filename,
                 'tax_ranks': np.array(tax_mapping),
                 'origin': origin,
                 'entry_line': header,
-                'atg_position': position_1_indexed,                     # ATG Position relative to full sequence (1-indexed)
+                'atg_position': position_1_indexed - 1,                     # ATG Position relative to full sequence (1-indexed)
                 'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
                 'peptide_len': aa_seq_len,
                 'strand': "-"
