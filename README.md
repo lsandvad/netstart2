@@ -46,7 +46,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 |`--compute_device` | Which hardware accelerator to use. Options are:  `cuda` (NVIDIA GPU), `mps` (Apple Silicon), or `cpu`. The program will automatically fall back to CPU if the requested device is unavailable. |
 |`--include_reverse_complement` | Specifies whether NetStart 2.0 should predict sequence on both strands (template and reverse complement sequences). We recommend using this option, if you want to use NetStart 2.0 to predict on genomic sequences. Default: `False`. |
 
-The predictions are returned as a .csv file. 
+The predictions are returned as a .csv file, see [Output format description](#output-format-description) for output descriptions. 
 
 
 
@@ -130,5 +130,5 @@ The predictions are returned as a .csv file.
 
 
 
-## Output Attributes
+## Output Format Description
 Skriv her!
