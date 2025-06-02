@@ -46,7 +46,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 |`--compute_device` | Which hardware accelerator to use. Options are:  `cuda` (NVIDIA GPU), `mps` (Apple Silicon), or `cpu`. The program will automatically fall back to CPU if the requested device is unavailable. |
 |`--include_reverse_complement` | Specifies whether NetStart 2.0 should predict sequence on both strands (template and reverse complement sequences). We recommend using this option, if you want to use NetStart 2.0 to predict on genomic sequences. Default: `False`. |
 
-The predictions are returned as a .csv file, see [Output format description](#output-format-description) for output descriptions. 
+The predictions are returned as a .csv file, see [Output format description](#output-format-description) for description. 
 
 
 
@@ -131,4 +131,13 @@ The predictions are returned as a .csv file, see [Output format description](#ou
 
 
 ## Output Format Description
-Skriv her!
+The output is provided as a csv file, containing the following information attributes for each prediction (ATG): \
+| **Attribute**           | **Description**                          |
+|-------------------------|------------------------------------------|
+| `origin`                | Specifies the origin of the sequence predicted on (provided by the user). |
+| `atg_pos`               | States the position of the ATG predicted upon (corresponds to the A in the codon). |
+| `entry_line`            | Specifies the fasta header line of the specific sequence. |
+| `preds`                 | Provides the predicted probability of the specific ATG being a translation initiation site (in the range [0.0, 1.0]).
+| `stop_codon_position`   | States the position of the first in-frame stop codon relative to the ATG prediction upon (position corresponds to the first position of the stop codon). |
+| `peptide_len`           | States the length of the hypothetical peptide. |
+| `strand`                | States the strand predicted upon (+ denotes the template strand, - denotes the complement strand). | 
