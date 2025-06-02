@@ -44,6 +44,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
 | `-in`, `--input_filename`       | Input file in FASTA format. The allowed input alphabet is A, C, G, T, U and N (unknown). All the other letters will be converted to N before processing. T and U are treated as equivalent. The input file can also be provided in gzipped version with a .gz extension.                                                                        |
 |`--compute_device` | Which hardware accelerator to use. Options are:  `cuda` (NVIDIA GPU), `mps` (Apple Silicon), or `cpu`. The program will automatically fall back to CPU if the requested device is unavailable. |
+|`--include_reverse_complement` | Specifies whether NetStart 2.0 should predict sequence on both strands (template and reverse complement sequences). We recommend using this option, if you want to use NetStart 2.0 to predict on genomic sequences. Default: `False`. |
 
 The predictions are returned as a .csv file. 
 
@@ -126,3 +127,8 @@ The predictions are returned as a .csv file.
 | **Mucoromycota**                | `mucoromycota`            |
 | *Rhizophagus irregularis*       | `r_irregularis`           |
 | **Unknown**                     | `unknown`                 |
+
+
+
+## Output Attributes
+Skriv her!

@@ -21,6 +21,11 @@ from huggingface_hub import hf_hub_download
 
 transformers.logging.set_verbosity_error()
 
+import warnings
+warnings.filterwarnings("ignore", 
+                        category=FutureWarning)
+
+
 #Define dictionary for species and phyla
 conversion_dict = {
     'a_mississippiensis': 'Alligator mississippiensis',
@@ -463,6 +468,7 @@ def get_formatted_amino_acid_sequence(sequence, position, nucleotides_upstream, 
         
     return sequence_aa
 
+
 def extract_datasets(input_filename, 
                      extract_upstream_aa, 
                      extract_downstream_aa,
@@ -513,17 +519,20 @@ def extract_datasets(input_filename,
     #Loop over entries in input fasta file
     for header, sequence in read_fasta(input_filename):
         sequence = sequence.upper().replace("U", "T")
-        
+        sequence_len = len(sequence)
+
         #Find all ATG positions in sequence
         positions = [match.start() for match in re.finditer(motif, sequence)]
         
         for position in positions:
+
+            stop_codon_found = False 
             assert sequence[position:position+3] == motif
             
             #Find first in-frame stop codon after ATG
             position_1_indexed = position + 1
             first_stop_codon_pos_1_indexed = float('nan')
-            aa_seq_len = float('nan')
+            #aa_seq_len = float('nan')
             for i in range(position + 3, len(sequence), 3):
                 codon = sequence[i:i+3]
                 if codon in stop_codons:
@@ -532,8 +541,13 @@ def extract_datasets(input_filename,
                     nucleotide_seq_len = int(first_stop_codon_pos_1_indexed - position_1_indexed)
                     assert nucleotide_seq_len % 3 == 0, "Start- and stop codon positions not extracted properly."
                     aa_seq_len = nucleotide_seq_len // 3
+                    stop_codon_found = True
 
                     break
+
+            if not stop_codon_found:
+                aa_seq_len = int(sequence_len - position_1_indexed) // 3
+                first_stop_codon_pos_1_indexed = -1
             
             nucleotides_upstream = len(sequence[:position])
             nucleotides_downstream = len(sequence[position+3:])
@@ -556,7 +570,126 @@ def extract_datasets(input_filename,
                 'entry_line': header,
                 'atg_position': position_1_indexed,                     # ATG Position relative to full sequence (1-indexed)
                 'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
-                'peptide_len': aa_seq_len
+                'peptide_len': aa_seq_len,
+                'strand': "+"
+            })
+            
+    df_input = pd.DataFrame(rows)
+    return df_input
+
+def reverse_complement(seq):
+    """ 
+    Reverse complement sequence.
+    """
+    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    # Convert to uppercase to avoid key errors
+    seq = seq.upper()
+    return ''.join(complement.get(base, base) for base in reversed(seq))
+
+def extract_datasets_complement_strand(input_filename, 
+                     extract_upstream_aa, 
+                     extract_downstream_aa,
+                     tax_mappings,
+                     origin):
+    """
+    Get part of datasets that is the same across trained models in correct format to run NetStart 2.0 on. 
+    
+    Args:
+        input_filename (str): the fasta input file.
+        extract_upstream_aa (int): the number of amino acid positions upstream ATG to extract.
+        extract_downstream_aa (int): the number of amino acid positions downstream ATG to extract.
+        tax_mappings (dict): A dictionary containing taxonomic mappings for each species.
+        origin (str): The species/phylum to format datasets for.
+    
+    Returns:
+        df_input (df): dataframe with invariant sequence information required for model.
+    """
+
+    phylum_to_species_dict = {'Chordata': 'Homo sapiens', 
+                          'Nematoda': 'Caenorhabditis elegans', 
+                          'Arthropoda': 'Drosophila melanogaster', 
+                          'Placozoa': 'Trichoplax adhaerens', 
+                          'Echinodermata': 'Strongylocentrotus purpuratus', 
+                          'Apicomplexa': 'Plasmodium falciparum', 
+                          'Euglenozoa': 'Leishmania donovani', 
+                          'Evosea': 'Dictyostelium discoideum', 
+                          'Fornicata': 'Giardia intestinalis', 
+                          'Streptophyta': 'Arabidopsis thaliana', 
+                          'Ascomycota': 'Saccharomyces cerevisiae', 
+                          'Basidiomycota': 'Cryptococcus neoformans', 
+                          'Mucoromycota': 'Rhizophagus irregularis'}
+    
+    rows = []
+    motif = "ATG"
+    stop_codons = ["TAA", "TAG", "TGA"]
+    
+    #phylum-level representation          
+    if origin in phylum_to_species_dict.keys(): 
+        tax_mapping = ['0']*5 + tax_mappings[phylum_to_species_dict[origin]][-2:]
+    #unknown origin
+    elif origin == "unknown":
+        tax_mapping = ['0']*7
+    #species-level representation
+    else: 
+        tax_mapping = tax_mappings[origin]
+
+    #Loop over entries in input fasta file
+    for header, sequence in read_fasta(input_filename):
+        sequence = sequence.upper().replace("U", "T")
+        sequence = reverse_complement(sequence)
+
+        sequence_len = len(sequence)
+        
+        #Find all ATG positions in sequence
+        positions = [match.start() for match in re.finditer(motif, sequence)]
+        
+        for position in positions:
+            stop_codon_found = False
+            assert sequence[position:position+3] == motif
+            
+            #Find first in-frame stop codon after ATG
+            position_1_indexed = (sequence_len - position) + 1
+            first_stop_codon_pos_1_indexed = float('nan')
+            aa_seq_len = float('nan')
+            for i in range(position + 3, len(sequence), 3):
+                codon = sequence[i:i+3]
+                if codon in stop_codons:
+                    first_stop_codon_pos_1_indexed = (sequence_len  - i) + 1
+
+                    nucleotide_seq_len = abs(int(first_stop_codon_pos_1_indexed - position_1_indexed))
+                    assert nucleotide_seq_len % 3 == 0, "Start- and stop codon positions not extracted properly."
+                    aa_seq_len = nucleotide_seq_len // 3
+                    stop_codon_found = True
+
+                    break
+
+            if not stop_codon_found:
+                aa_seq_len = int(position_1_indexed) // 3
+                first_stop_codon_pos_1_indexed = -1
+            
+            nucleotides_upstream = len(sequence[:position])
+            nucleotides_downstream = len(sequence[position+3:])
+
+            #Extract amino acid sequence          
+            sequence_aa = get_formatted_amino_acid_sequence(
+                sequence, 
+                position, 
+                nucleotides_upstream, 
+                nucleotides_downstream, 
+                extract_upstream_aa, 
+                extract_downstream_aa
+            )
+
+            #Get all information shared between models required to do prediction for every sequence in fastafile.
+            rows.append({
+                'aa_sequences': sequence_aa,
+                'tax_ranks': np.array(tax_mapping),
+                'origin': origin,
+                'entry_line': header,
+                'atg_position': position_1_indexed,                     # ATG Position relative to full sequence (1-indexed)
+                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
+                'peptide_len': aa_seq_len,
+                'strand': "-"
             })
             
     df_input = pd.DataFrame(rows)
@@ -604,6 +737,50 @@ def extract_datasets_nt(input_filename,
             
     df_input_nt = pd.DataFrame(rows)
     return df_input_nt
+
+def extract_datasets_nt_complement_strand(input_filename, 
+                                          extract_upstream_nt, 
+                                          extract_downstream_nt):
+    """
+    Get part of datasets that varies across trained models in correct format to run NetStart 2.0 on for the complement strand.
+    
+    Args:
+        input_filename (str): the fasta input file.
+        extract_upstream_nt (int): the number of nucleotide positions upstream ATG to extract.
+        extract_downstream_nt (int): the number of nucleotide positions downstream ATG to extract.
+    
+    Returns: 
+        df_input_nt (df): dataframe with formatted nucleotide sequences required for model.
+    """
+    
+    rows = []
+    motif = "ATG"
+    
+    for header, sequence in read_fasta(input_filename):
+        
+        sequence = sequence.upper().replace("U", "T")
+        sequence = reverse_complement(sequence)
+        
+        #Find all ATG positions in sequence
+        positions = [match.start() for match in re.finditer(motif, sequence)]
+        
+        #loop over all ATG positions (or if specified, specific position(s))
+        for position in positions:
+            assert sequence[position:position+3] == motif
+        
+            #Extract the number of nucleotides upstream and downstream the ATG, respectively
+            nucleotides_downstream = len(sequence[position+3:])
+                      
+            #####Extract nucleotide sequence####
+            sequence_nt = get_formatted_nucleotide_sequence(sequence, position, nucleotides_downstream, extract_upstream_nt, extract_downstream_nt)
+
+            #Get all information required to do prediction for every sequence in fastafile.    
+            rows.append({
+                'nt_sequences': sequence_nt})
+            
+    df_input_nt = pd.DataFrame(rows)
+    return df_input_nt
+
 
 
 def create_encodings_aa(df_input, extract_upstream_aa, extract_downstream_aa, batch_size=64):
@@ -705,11 +882,11 @@ class InputDatasetNT(torch.utils.data.Dataset):
         return len(self.nt_encodings)
 
 
-class MultiInputDataset(torch.utils.data.Dataset): ##Write comments. 
+class MultiInputDataset(torch.utils.data.Dataset):
     """
     Create part of dataset to feed NetStart 2.0 that varies across trained models (PyTorch applicable format).
     """
-    def __init__(self, aa_encodings, tax_ranks, entry_line, atg_position, origin, stop_codon_position, peptide_len):
+    def __init__(self, aa_encodings, tax_ranks, entry_line, atg_position, origin, stop_codon_position, peptide_len, strand):
         self.aa_encodings = aa_encodings
         self.tax_ranks = tax_ranks
         self.entry_line = entry_line
@@ -717,6 +894,7 @@ class MultiInputDataset(torch.utils.data.Dataset): ##Write comments.
         self.origin = origin
         self.stop_codon_position = stop_codon_position
         self.peptide_len = peptide_len
+        self.strand = strand
 
     def __getitem__(self, idx):
         # Convert strings to integers in the 'tax_ranks' list
@@ -729,7 +907,8 @@ class MultiInputDataset(torch.utils.data.Dataset): ##Write comments.
             'atg_position': self.atg_position[idx],
             'origin': self.origin[idx],
             'stop_codon_position': self.stop_codon_position[idx],
-            'peptide_len': self.peptide_len[idx]
+            'peptide_len': self.peptide_len[idx],
+            'strand': self.strand[idx]
         }
         return item
 
@@ -876,7 +1055,7 @@ class NetstartModel(nn.Module):
         return output
     
 
-def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes, batch_size, compute_device):
+def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes, include_rev_comp, batch_size, compute_device):
     """
     Extract data in correct format and instantiate model with specified, optimized hyperparameters.
 
@@ -899,6 +1078,13 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
     df_input_nt = extract_datasets_nt(input_filename,
                                       extract_upstream_nt = model_config["nt_upstream"], 
                                       extract_downstream_nt = model_config["nt_downstream"])
+    
+    if include_rev_comp:
+        df_input_nt_rev_comp = extract_datasets_nt_complement_strand(input_filename,
+                                                                     extract_upstream_nt = model_config["nt_upstream"], 
+                                                                     extract_downstream_nt = model_config["nt_downstream"])
+            
+        df_input_nt = pd.concat([df_input_nt, df_input_nt_rev_comp], axis=0, ignore_index=True)
     
     #Create nucleotide encodings
     encodings_nt = create_encodings_nt(df_input_nt)
@@ -946,7 +1132,7 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
     return model, dataloader_nt
 
 
-def get_predictions(origin, input_filename, output_filename, output_results, threshold, gzip_outfile, batch_size, compute_device):
+def get_predictions(origin, input_filename, output_filename, output_results, threshold, gzip_outfile, include_rev_comp, batch_size, compute_device):
     """
     Run entire pipeline to get predictions.
 
@@ -969,6 +1155,17 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                                 extract_downstream_aa = 100,
                                 tax_mappings = tax_mappings,
                                 origin = origin)
+    
+    if include_rev_comp:
+        print("Including predictions on the complement strand.")
+        df_input_rev_comp = extract_datasets_complement_strand(input_filename,
+                                                              extract_upstream_aa = 100,  
+                                                              extract_downstream_aa = 100,
+                                                              tax_mappings = tax_mappings,
+                                                              origin = origin)
+        
+        df_input = pd.concat([df_input, df_input_rev_comp], axis=0, ignore_index=True)
+    
 
     #Check if there are any ATGs to predict on
     if len(df_input) > 0:
@@ -984,7 +1181,8 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                                         df_input['atg_position'],
                                         df_input['origin'],
                                         df_input['stop_codon_position'],
-                                        df_input['peptide_len'])
+                                        df_input['peptide_len'],
+                                        df_input['strand'])
         
         #Create dataloader for data not varying across models
         test_loader_invariant = DataLoader(dataset_invariant, batch_size=batch_size, shuffle=False)
@@ -994,24 +1192,28 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
+                                                include_rev_comp = include_rev_comp,
                                                 batch_size = batch_size,
                                                 compute_device = compute_device)
         model2, test_loader2 = ExtractDataAndModel(model_no = "2", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
+                                                include_rev_comp = include_rev_comp,
                                                 batch_size = batch_size,
                                                 compute_device = compute_device)
         model3, test_loader3 = ExtractDataAndModel(model_no = "3", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
+                                                include_rev_comp = include_rev_comp,
                                                 batch_size = batch_size,
                                                 compute_device = compute_device)
         model4, test_loader4 = ExtractDataAndModel(model_no = "4", 
                                                 input_filename = input_filename, 
                                                 aa_encodings_len = aa_encodings_len, 
                                                 vocab_sizes = vocab_sizes,
+                                                include_rev_comp = include_rev_comp,
                                                 batch_size = batch_size,
                                                 compute_device = compute_device)
         
@@ -1033,9 +1235,10 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
         information_dict["stop_codon_position"] = []
         information_dict['peptide_len'] = []
         information_dict["entry_line"] = []
+        information_dict["strand"] = []
         information_dict["preds"] = []
 
-        assert len(test_loader1) == len(test_loader2) == len(test_loader3) == len(test_loader4) == len(test_loader_invariant), "Data not loaded properly."
+        assert len(test_loader1) == len(test_loader2) == len(test_loader3) == len(test_loader4) == len(test_loader_invariant), "Data not loaded properly." 
 
         total_batches = len(test_loader1)
         
@@ -1069,14 +1272,18 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
                 information_dict["stop_codon_position"].extend(batch_invariant["stop_codon_position"])
                 information_dict['peptide_len'].extend(batch_invariant['peptide_len'])
                 information_dict["entry_line"].extend(batch_invariant["entry_line"])
+                information_dict["strand"].extend(batch_invariant["strand"])
                 
         #Convert float32 values to native Python floats in the dictionary lists
         information_dict["preds"] = [round(float(val), 6) for val in information_dict["preds"]]
         information_dict["atg_position"] = [int(val) for val in information_dict["atg_position"]]
-        information_dict["stop_codon_position"] = [int(val.item()) if not torch.isnan(val) else float('nan') for val in information_dict["stop_codon_position"]]
+        information_dict["stop_codon_position"] = [int(val.item()) if not val.item() == -1 else "" for val in information_dict["stop_codon_position"]]
         information_dict['peptide_len'] = [int(val.item()) if not torch.isnan(val) else float('nan') for val in information_dict['peptide_len']]
 
         information_df = pd.DataFrame(information_dict)
+
+        information_df = information_df.sort_values(by=["entry_line", "atg_position"])
+
 
         if output_results == "max_prob":
             # Use groupby and idxmax to find the rows with the highest preds for each entry_line
@@ -1123,10 +1330,16 @@ def main():
                         default=False,
                         help='Specify if output file should be gzipped (default: False).')
     
+    optional.add_argument('--include_reverse_complement', 
+                        action='store_true',   
+                        default=False,
+                        help='Specify if NetStart 2.0 should also predict TISs on the reverse complement sequences (default: False).')
+
     optional.add_argument('--batch_size',
                         type=int,
                         default=64,
                         help='Set batch size (default: 64).')
+    
     optional.add_argument('-compute_device',
                           type = str,
                           default = "cuda",
@@ -1174,6 +1387,7 @@ def main():
                     output_results = args.output_results, 
                     threshold = args.threshold,
                     gzip_outfile = args.gzip_outfile,
+                    include_rev_comp = args.include_reverse_complement,
                     batch_size=args.batch_size,
                     compute_device=args.compute_device)
 
