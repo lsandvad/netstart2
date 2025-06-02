@@ -131,7 +131,7 @@ The predictions are returned as a .csv file, see [Output format description](#ou
 
 
 ## Output Format Description
-The output is provided as a csv file, containing the following information attributes for each prediction (ATG): \
+The output is provided as a .csv file which contains the following information attributes for each prediction (ATG):
 | **Attribute**           | **Description**                          |
 |-------------------------|------------------------------------------|
 | `origin`                | Specifies the origin of the sequence predicted on (provided by the user). |
