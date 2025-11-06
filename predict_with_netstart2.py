@@ -1131,8 +1131,8 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
         #Make sure that there are no 'missing_keys'
         assert not state_dict_result.missing_keys, f"Missing keys in state dict: {state_dict_result.missing_keys}"
         #Log if there are any 'unexpected_keys' for clarity
-        if state_dict_result.unexpected_keys:
-            print(f"Warning: Unexpected keys in state dict: {state_dict_result.unexpected_keys}")
+        #if state_dict_result.unexpected_keys:
+        #    print(f"Warning: Unexpected keys in state dict: {state_dict_result.unexpected_keys}")
     else:
         print("PyTorch version does not support structured return from load_state_dict()")
 
