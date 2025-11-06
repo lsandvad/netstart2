@@ -1126,7 +1126,15 @@ def ExtractDataAndModel(model_no, input_filename, aa_encodings_len, vocab_sizes,
     model.to(device)
 
     #Instantiate model with checkpoint
-    model.load_state_dict(model_state_dict)
+    state_dict_result = model.load_state_dict(model_state_dict, strict=False)
+    if hasattr(state_dict_result, "missing_keys"):
+        #Make sure that there are no 'missing_keys'
+        assert not state_dict_result.missing_keys, f"Missing keys in state dict: {state_dict_result.missing_keys}"
+        #Log if there are any 'unexpected_keys' for clarity
+        if state_dict_result.unexpected_keys:
+            print(f"Warning: Unexpected keys in state dict: {state_dict_result.unexpected_keys}")
+    else:
+        print("PyTorch version does not support structured return from load_state_dict()")
 
     #Set the model to evaluation mode
     model.eval()
