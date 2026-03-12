@@ -536,9 +536,9 @@ def extract_datasets(input_filename,
             for i in range(position + 3, len(sequence), 3):
                 codon = sequence[i:i+3]
                 if codon in stop_codons:
-                    first_stop_codon_pos_1_indexed = i + 1
+                    first_stop_codon_pos_1_indexed = i + 3 #MODIFIED; return position of last base in stop codon
 
-                    nucleotide_seq_len = int(first_stop_codon_pos_1_indexed - position_1_indexed)
+                    nucleotide_seq_len = int((first_stop_codon_pos_1_indexed - 2) - position_1_indexed)
                     assert nucleotide_seq_len % 3 == 0, "Start- and stop codon positions not extracted properly."
                     aa_seq_len = nucleotide_seq_len // 3
                     stop_codon_found = True
@@ -569,7 +569,7 @@ def extract_datasets(input_filename,
                 'origin': origin,
                 'entry_line': header,
                 'atg_position': position_1_indexed,                     # ATG Position relative to full sequence (1-indexed)
-                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
+                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of last base in stop codon)
                 'peptide_len': aa_seq_len,
                 'strand': "+"
             })
@@ -648,7 +648,7 @@ def extract_datasets_complement_strand(input_filename,
             assert sequence[position:position+3] == motif
             
             #Find first in-frame stop codon after ATG
-            position_1_indexed = (sequence_len - position) + 1
+            position_1_indexed = (sequence_len - position) + 1 
             first_stop_codon_pos_1_indexed = float('nan')
             aa_seq_len = float('nan')
             for i in range(position + 3, len(sequence), 3):
@@ -661,7 +661,7 @@ def extract_datasets_complement_strand(input_filename,
                     aa_seq_len = nucleotide_seq_len // 3
                     stop_codon_found = True
 
-                    first_stop_codon_pos_1_indexed -= 1
+                    first_stop_codon_pos_1_indexed -= 3 #MODIFIED; return position of last base in stop codon
 
                     break
 
@@ -689,7 +689,7 @@ def extract_datasets_complement_strand(input_filename,
                 'origin': origin,
                 'entry_line': header,
                 'atg_position': position_1_indexed - 1,                     # ATG Position relative to full sequence (1-indexed)
-                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of first base in stop codon)
+                'stop_codon_position': first_stop_codon_pos_1_indexed,  # Stop Codon Position relative to full sequence (1-indexed) (position of last base in stop codon) #MODIFIED comment 
                 'peptide_len': aa_seq_len,
                 'strand': "-"
             })
