@@ -44,10 +44,9 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 | `-o`, `--origin`                | Origin of the sequence(s) (refer to the [Input Sequence Origin Specifications](#input-sequence-origin-specifications) table for options).             |
 | `-in`, `--input_filename`       | Input file in FASTA format. The allowed input alphabet is A, C, G, T, U and N (unknown). All the other letters will be converted to N before processing. T and U are treated as equivalent. The input file can also be provided in gzipped version with a .gz extension.                                                                        |
 |`--compute_device` | Which hardware accelerator to use. Options are:  `cuda` (NVIDIA GPU), `mps` (Apple Silicon), or `cpu`. The program will automatically fall back to CPU if the requested device is unavailable. |
-|`--include_reverse_complement` | Specifies whether NetStart 2.0 should predict on both strands. We recommend using this option, if you want to use NetStart 2.0 to predict on genomic sequences. Default: `False`. |
+|`--include_reverse_complement` | Specifies whether NetStart 2.0 should predict on both strands. If you want to use NetStart 2.0 to predict on genomic sequences, you can use this option. Please note that NetStart 2.0 was trained for predicting on transcripts. Performance on genomic sequences may vary and is highly influenced by the presence of introns. We refer to the [paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC12366053/) for an assessment of this impact. Default: `False`. |
 
 The predictions are returned as a .csv file, see [Output format description](#output-format-description) for description. 
-
 
 
 ### Input Sequence Origin Specifications
@@ -138,6 +137,10 @@ The output is provided as a .csv file which contains the following information a
 | `atg_pos`               | States the position of the ATG predicted upon (corresponds to the A in the codon). |
 | `entry_line`            | Specifies the fasta header line of the specific sequence. |
 | `preds`                 | Provides the predicted probability of the specific ATG being a translation initiation site (in the range [0.0, 1.0]).
-| `stop_codon_position`   | States the position of the first in-frame stop codon relative to the ATG prediction upon (position corresponds to the first position of the stop codon). |
+| `stop_codon_position`   | States the position of the first in-frame stop codon relative to the ATG prediction upon (position corresponds to the last position of the stop codon). |
 | `peptide_len`           | States the length of the hypothetical peptide. |
 | `strand`                | States the strand predicted upon (+ denotes the template strand, - denotes the complement strand). | 
+
+
+## Citation
+Nielsen, L. S., Pedersen, A. G., Winther, O., & Nielsen, H. (2025). NetStart 2.0: prediction of eukaryotic translation initiation sites using a protein language model. *BMC bioinformatics*, 26(1), 216. https://doi.org/10.1186/s12859-025-06220-2
