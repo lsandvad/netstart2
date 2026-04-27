@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import time
 import numpy as np
 import pandas as pd
@@ -13,17 +16,13 @@ from torch.utils.data import DataLoader
 import transformers
 import time
 import argparse
-import os 
+import os
 import sys
 
 from transformers import AutoTokenizer, AutoModel
 from huggingface_hub import hf_hub_download
 
 transformers.logging.set_verbosity_error()
-
-import warnings
-warnings.filterwarnings("ignore", 
-                        category=FutureWarning)
 
 
 #Define dictionary for species and phyla
@@ -1229,7 +1228,7 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
         
         #Calculate and print total time
         total_time = time.time() - start_time
-        print(f"\nData processing finished. Processing time: {total_time:.2f} seconds ({total_time/60:.2f} minutes).")
+        print(f"Data processing finished. Processing time: {total_time:.2f} seconds ({total_time/60:.2f} minutes).")
             
         if compute_device == "cuda":
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -1237,7 +1236,10 @@ def get_predictions(origin, input_filename, output_filename, output_results, thr
             device = torch.device("mps" if torch.mps.is_available() else "cpu")
         else:
             device = torch.device("cpu")
-        
+
+        device_label = {"cuda": "CUDA (GPU)", "mps": "MPS (Apple Silicon)", "cpu": "CPU"}.get(device.type, device.type)
+        print(f"\nRunning on: {device_label}\n")
+
         #Initialize
         information_dict = dict()
         information_dict["origin"] = []
@@ -1350,7 +1352,7 @@ def main():
                         default=64,
                         help='Set batch size (default: 64).')
     
-    optional.add_argument('-compute_device',
+    optional.add_argument('--compute_device',
                           type = str,
                           default = "cuda",
                           choices=["cuda", "mps", "cpu"], 
