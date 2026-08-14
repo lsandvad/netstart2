@@ -36,7 +36,7 @@ The sequence origin and input file (in FASTA format) are required. Additionally,
 
 | Input Argument                      | Description                                     |
 |---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `-out`, `--output_filename`     | Name of the output file without the file extension.                                                                                                   |
+| `-out`, `--output_filename`     | Name of the output file without the file extension. Default: `netstart2_preds_out`.                                                                                                  |
 | `--output_results`              | Format of the prediction results. Options are: `all` (returns predicted probabilities for all ATGs in the input sequence(s)), `max_prob` (returns only the ATG with the highest predicted probability for each input sequence), and `threshold` (returns all ATGs with a predicted probability above the specified threshold). Default: `all`. |
 | `--threshold`                   | Sets the threshold for filtering predictions. This option is only applicable when `--output_results` is set to `threshold`. Default value: `0.625`.   |
 | `--gzip_outfile`                | Specifies whether the output file should be gzipped. Default value: `False`.                                                                          |
